@@ -1,0 +1,10 @@
+#page 502 for pipeline
+#page 523 for cpe calculations
+
+
+1.) see chart.jpg
+
+2.) floating point addition is unable to be pipelined as it needs to wait for other operations to finish, making it the critical path with 3 cycles, and the lower latency being 3 ( that of floating point addition)
+
+4.) The inner 2 function (with loop unrolling) performed better than the inner1 (without loop unrolling). I ran the test multiple times with 100,000 vector size, they were sometimes comparable, but with the loop unrolled still beating the non loop unrolled, the farthest apart they were was ( 0.001642 - 0.000353), with the closest at ( 0.000460 - 0.000434) *note loop unrolling listed second. As expected loop unrolling can have a notable performance impact. 
+#note see graph.jpg for graph

@@ -1,0 +1,15 @@
+1.)
+
+a.) 16^2 *4 memory writes or 1024 total memory writes 
+
+b.) 128 memory writes that miss
+
+c.) 1/8 miss rate
+
+
+** the cache goes from 0 -2048 is mapped in 32 bit intervals 
+on the first request misses as cache is cold then next 7 hit
+as each array is [4*4 =16] and gives a miss rate of 1
+
+
+

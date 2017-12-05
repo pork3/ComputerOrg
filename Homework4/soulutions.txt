@@ -1,0 +1,171 @@
+//////////********** Problem 1 **********\\\\\\\\\\\\\\\\\
+A)
+
+edi = result / esi = x / ebx = n / edx = mask / eax is return 
+
+movl 8(%ebp), %esi  | "Move value from x into register esi"
+movl 12(%ebp), %ebx | "Move value from n into register ebx"
+movl $-1, %edi      | "Move value -1 into register edi" result = -1
+movl $1, %edx		| "Move value 1 into register edx" mask = 1
+
+.L2: movl %edx, %eax | "Move value in edx(mask) to eax"
+andl %esi, %eax		| and esi  eax store in eax   ******x & eax******* (x & maks)
+xorl %eax, %edi 	| xor eax( mask ) and edi(result) result ^= mask  
+movl %ebx, %ecx		| move value in ebx to ecx move ebx(n) into ecx || move n into ecx() getting ready for lshift
+shll %ecx, %edx      | shift edx by ecx |||| ***** shift edx(mask) by ecx/ mask = mask << n 
+cmpl $0, %edx       | Compare edx and 0 () Compare mask and 0 
+
+jne .L2	            | if edx is not equal to zero go to label 2 begin loop again , mask != 0 
+movl %edi, %eax 	| move value from edi into eax return results as %eax is return register 
+
+
+xorl <soure, dest>
+andl <source, dest>
+shll <source , dest> Logical shift dest to the left by src bits.
+
+& mask 
+
+B)
+
+int loop(int x, int n) {
+int result = -1
+for (int mask = 1 ; mask  !=0 ; mask = (mask << n)) {
+result ^= (x& mask);
+}
+return result;
+}
+
+//////////////////////// Problem 2 \\\\\\\\\\\\\\\\\\\\\
+page 239
+
+rows * cols * size
+
+52/4 = 13 
+
+**This is the code to optimize ****
+define M ***  
+typedef int Marray_t[M][M];
+
+void transpose(Marray_t A){
+	int i , j ; 
+	for( i = 0; i < M ; i++){
+		for(int j = 0; j < i; j++){
+		int t = A[i][j];
+		A[i][j] = A[j][i];
+		A[j][i] = t; 
+		}
+	}
+}
+
+/////////////
+%ecx = j 
+%edi = i 
+%esi indexed row wise with ecx &A[i][0]*****
+%ebx inc 52(13) &m[j][i]
+%ebx pointer to a row &A[i][0]
+%eax =t beginning of each loop , %eax = value of (ebx)
+%esi = A[0][j] ((4 * j) + %esi)
+					+1         + 4 every iterati                 
+
+
+
+.L3: movl (%ebx), %eax      | move pointer (ebx) to eax | getting the start address of array A[i][j] %eax = A
+
+/* the movl are the swap 
+movl (%esi,%ecx,4), %edx	| (%esi + (4 * %ecx )) move pointer to edx  | edx = esi[ecx] edx=A[j]
+movl %eax, (%esi,%ecx,4)    | move (%esi + (4 * %ecx)) to %eax  A[i][j] the index will depend on what iteration 
+
+addl $1, %ecx				| j++
+
+/*second swap
+movl %edx, (%ebx)           | move edx into ebx, putting value from temp into a[j][i]
+
+
+addl $52, %ebx				| Go to the next row (the update ) A[i+1][j]
+cmpl %edi, %ecx 			| ecx - edi j < i 
+jl .L3
+
+
+
+
+movl source , destination 
+cmpl arg2 , arg 1
+
+Performs a comparison operation between arg1 and arg2. The comparison is performed by a (signed) subtraction of arg2 from arg1, the results of which can be called Temp. Temp is then discarded. If arg2 is an immediate value it will be sign extended to the length of arg1. The EFLAGS register is set in the same manner as a sub instruction.
+
+
+B) 13 or 52/4
+
+
+
+C) look in file 4-2.c for the test:
+
+void transposebetter(Marray_t A){
+   int * temp; 
+    for(int i = 0; i <M ; i++) //j will never be less than i 
+    {
+    	for(int j =0; j <i ; j++){
+    	*temp = *(*(A+i)+j); //get value at offset j
+    	*(*(A+i)+j) = *(*(A+j) + i); //put j into i
+    	*(*(A+j)+i) = *temp; //set value to temp
+    	}
+
+    }
+
+}
+
+
+
+
+/////////////********** Problem 3 ***********\\\\\\\\\\\\\\\\\\\
+.file	"test.c"
+	.text
+	.globl	f                    **Note my explanations on the right, I have attached the .s file 
+	.type	f, @function
+f:								|| function f
+.LFB0:
+	.cfi_startproc
+	movl	4(%esp), %eax        || get value x parameter of f and store in eax 
+	leal	(%eax,%eax,2), %eax  || x * 3 and store value in eax
+	ret                          || function cleanup moving ebp back etc
+	.cfi_endproc
+.LFE0:
+	.size	f, .-f
+	.globl	g
+	.type	g, @function
+g:								|| function g
+.LFB1:
+	.cfi_startproc
+	movl	4(%esp), %edx		|| get value x parameter and store in edx
+	movl	8(%esp), %eax		|| get value y parameter and store in eax
+	leal	(%eax,%eax,2), %ecx	|| b * 3 store in ecx <==> f(b)
+	leal	(%edx,%edx,2), %eax || a * 3 store in eax <==> f(a)
+	addl	%ecx, %eax			|| add ecx and eax ( b + a)
+	ret                         || function cleanup moving ebp etc 
+	.cfi_endproc
+.LFE1:
+	.size	g, .-g
+	.ident	"GCC: (Ubuntu 5.4.0-6ubuntu1~16.04.5) 5.4.0 20160609"
+	.section	.note.GNU-stack,"",@progbits
+
+This follows the guidelines for caller/callee and eax being the return register 
+
+
+********leal since the src operand can take up to 4 parameters: base register, index register, scalar multiplier and displacement****
+
+
+Cited Sources 
+
+***used https://en.wikibooks.org/wiki/X86_Assembly/GAS_Syntax 
+as a source for some x86 syntax and finding the source/destination syntax 
+
+
+****** this page helped a lot understanding pointer arithmetic in 2d arrays 
+https://stackoverflow.com/questions/13554244/how-to-use-pointer-expressions-to-access-elements-of-a-two-dimensional-array-in
+
+
+
+
+
+
+

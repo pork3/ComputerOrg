@@ -1,0 +1,62 @@
+.pos 0
+Init:
+    irmovl Stack, %ebp
+    irmovl Stack, %esp
+    call Main
+    
+  .align 4 
+array:  
+    .long 0x3
+    .long 0x4
+    .long 0x2
+    .long 0x7
+    .long 0x4
+    .long 0x5
+    .long 0x1
+    .long 0x4
+    .long 0x5
+    .long 0x5
+    
+Main: 
+    pushl %ebp
+    rrmovl %esp , %ebp
+    
+    irmovl 10, %eax   #length of array 
+    pushl %eax
+    irmovl array, %eax #get &array
+    pushl %eax      #push into the call to ssort
+    call ssort
+    
+    #ecx array
+    #edx len of array (10)
+    #ebx is used to iterate through array
+    #esi is used to dec value from len
+    
+ssort: 
+    pushl %ebp
+    rrmovl %esp, %ebp
+    
+    pushl %ebx
+    pushl %esi
+    
+    mrmovl 8(%ebp), %ecx
+    mrmovl 12(%ebp), %edx
+    
+    rrmovl %ecx, %eax ##eax is now backup of array
+    irmovl 4 , %ebx  # array iterator 
+    irmovl 1, %esi # 1 for sub of len
+    subl %esi, %edx # length -1 
+    
+    #inner loop want to find the smallest value in the array
+    loop:
+        addl %ebx, %ecx #go to a[i + 1 }
+        pushl %ecx  #save ecx
+        pushl %eax  #save eax
+    
+    
+    
+
+    
+.pos 0x100
+Stack:
+    

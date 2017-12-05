@@ -1,0 +1,113 @@
+#used this as a refernce
+#https://github.com/joelcox/assembly-selection-sort/blob/master/my_selection_sort.s
+#selection sort in x86 was a good help
+#sorry if it's messy/ unorganized 
+
+.pos 0
+init:
+    irmovl Stack, %esp      # stack pointer
+    irmovl Stack, %ebp      # base pointer
+    call Main           
+    halt
+
+# Array of 10 elements
+    .pos 0x104
+    .align 4
+array:  
+    .long 0x0010
+    .long 0x0001
+    .long 0x0002
+    .long 0x0014
+    .long 0x0005
+    .long 0x0052
+    .long 0x0001
+    .long 0x0001
+    .long 0x0044
+    .long 0x0003
+
+Main:
+    pushl %ebp
+    rrmovl %esp, %ebp
+
+    irmovl $10, %eax    #eax store len
+    pushl %eax          # push array length
+    irmovl array, %edx #get array
+    pushl %edx          # push array
+    
+    call sort           #sort(int * array , int len)
+    
+    rrmovl %ebp, %esp #cleanup
+    popl %ebp
+    ret
+
+sort:
+    pushl %ebp
+    rrmovl %esp, %ebp
+    
+    pushl %ebx                  #a[i+1}
+    pushl %edi                  #1 for +-1
+    pushl %esi                  # a[i] for later
+    mrmovl 12(%ebp), %edx       # len
+    
+    irmovl $1, %edi         
+    subl %edi, %edx             # subtract 1 from len
+    outer:
+        mrmovl 8(%ebp), %eax        # a[i]
+        irmovl $4, %ebx             #getting ready to go through array
+        addl %eax, %ebx             # a[i+1]
+        pushl %edx
+
+        inner:
+            mrmovl (%eax), %esi         # a[i]
+            mrmovl (%ebx), %ecx         # a[i+1]
+            
+            pushl %ecx                  # saves ecx will be destroyed
+            subl %esi, %ecx             #compare to set flags
+            
+            popl %ecx                   # restore value
+            
+            #edx len, 
+            #eax a[i]
+            #edi 1 to decrement len
+            #ebx value to get next array elem
+            
+            
+            jg dontswap  #similar to lab, only update if nneeded
+
+            pushl %ecx                  # swap starts
+            pushl %esi
+            
+            mrmovl (%eax), %ecx     #normal swap
+            mrmovl (%ebx), %esi
+            
+            rmmovl %ecx, (%ebx)  #update registers
+            rmmovl %esi, (%eax)
+            
+            popl %esi
+            popl %ecx                   # swap ends
+
+            dontswap:                     #go through loop again
+            irmovl $4, %edi             # e
+            addl %edi, %eax     #begin again with the next values
+            addl %edi, %ebx
+            
+            irmovl $1, %edi
+            subl %edi, %edx   #break out condtion
+            jg inner
+
+        popl %edx
+        irmovl $1, %edi  #lets go outer now
+        subl %edi, %edx   #break condition
+        jg outer
+
+    popl %esi  #cleanup
+    popl %edi  
+    popl %ebx  
+    rrmovl %ebp, %esp
+    popl %ebp
+    
+
+    ret
+
+.pos 0x100
+Stack:

@@ -1,0 +1,28 @@
+4bit icode
+4bit ifun
+4bit rA
+4bit rB 
+32bit Value
+
+
+Fetch 		 icode: ifun <- M1[PC] |Retrieve
+			 rA:rB <- M1[PC+1]
+			 valC <- M4[PC+2]	  | Set up the constant value to be added
+			 valP <- PC + 6       | Get the address of the instruction
+
+Decode       valB <- R[rB]		  | Read the register value/address and store in valB
+
+Execute   	 valE <- valB + valC  | add the constant value to the register
+
+Write		 R[rB] < valE  		  | Takes the value and upates into the register(computed at exec)
+
+PC Update	 PC < valP			  | Update PC
+
+
+
+rA : rB indicates the two components of the register specifier byt
+M1[x] indicates accessing (either reading or writing) 1 byte at memory location x, while
+M4[x] indicates accessing 4 bytes.
+The notation icode : ifun indicates the two components of the instruction byte,
+
+valC 4 bit constant word

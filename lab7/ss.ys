@@ -1,0 +1,92 @@
+.pos 0 
+init:   
+    irmovl Stack, %esp      # Set up stack pointer  
+    irmovl Stack, %ebp      # Set up base pointer   
+    call Main               # Execute main program
+    halt
+    
+# Array of 10 elements
+    .pos 0x104
+    .align 4    
+array:  
+    .long 0x0002
+    .long 0x0001
+    .long 0x0004
+    .long 0x0005
+    .long 0x0003
+    .long 0x0002
+    .long 0x0001
+    .long 0x0004
+    .long 0x0005
+    .long 0x0003
+    
+Main:   
+    pushl %ebp 
+    rrmovl %esp, %ebp
+
+    irmovl $10, %eax 
+    pushl %eax          # push array length
+    irmovl array, %edx
+    pushl %edx          # push &array
+    call sort           
+    rrmovl %ebp, %esp
+    
+    popl %ebp
+    ret 
+
+sort: 
+    pushl %ebp
+    rrmovl %esp, %ebp
+    pushl %ebx                  # callee saves ebx
+    pushl %edi                  # callee saves edi
+    pushl %esi                  # callee saves esi
+    mrmovl 12(%ebp), %edx       # edx = length
+    irmovl $1, %edi
+    subl %edi, %edx             # subtracts 1 from length so the loops run the correct number of times
+
+    outerloop:
+        mrmovl 8(%ebp), %eax        # eax = &array[i]
+        irmovl $4, %ebx             
+        addl %eax, %ebx             # ebx = &array[i+1]
+        pushl %edx         
+        
+        innerloop:
+            mrmovl (%eax), %esi         # esi = array[i]
+            mrmovl (%ebx), %ecx         # ecx = array[i+1]
+            pushl %ecx                  # saves ecx to be restored after the subl test
+            subl %esi, %ecx
+
+            popl %ecx                   # returns ecx to its previous value
+            jg noswap
+            
+            pushl %ecx                  # swap starts
+            pushl %esi
+            mrmovl (%eax), %ecx
+            mrmovl (%ebx), %esi
+            rmmovl %ecx, (%ebx)
+            rmmovl %esi, (%eax)
+            popl %esi
+            popl %ecx                   # swap ends
+        
+            noswap:                     # just skipps the swap if unnecessary
+            irmovl $4, %edi             # edi = size of int
+            addl %edi, %eax
+            addl %edi, %ebx
+            irmovl $1, %edi
+            subl %edi, %edx
+            jg innerloop
+        
+        popl %edx
+        irmovl $1, %edi
+        subl %edi, %edx
+        jg outerloop
+    
+    popl %esi  # restores esi
+    popl %edi  # restores edi
+    popl %ebx  # restores ebx    
+    rrmovl %ebp, %esp
+    popl %ebp
+    ret
+    
+.pos 0x100
+Stack:

@@ -1,0 +1,34 @@
+without forwardng:  3 no op needed
+
+addl %edx %eax        F   D   E   M    W 
+
+mrmovl0ecx edx			  F   D   E    M   W
+
+noop						  F   D    E   M   W
+
+noop 							  F    D   E   M   W
+
+noop                 	               F   D   E    M   W
+
+addl %edx %eax		      		           F   D	E   M   W
+
+
+with forwarding: 1 bubble
+
+As the mrmovl instruction passes
+through the execute stage, the pipeline control logic detects that the instruction
+in the decode stage (the addl) requires the result read from memory. It stalls the
+instruction in the decode stage for one cycle, causing a bubble to be injected into
+the execute stage.
+
+addl %edx %eax        F   D   E   M    W 
+
+mrmovl0ecx edx			  F   D   E    M   W
+
+bubble 								   E  M  W
+
+addl %edx %eax					  F    D   E  M   W
+
+
+addl %edx %eax
+mrmovl 

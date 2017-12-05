@@ -1,0 +1,36 @@
+.pos 0
+Init:
+    irmovl Stack, %ebp
+    irmovl Stack, %esp
+    call Main:
+    
+array:    .long 0x0001  #array of 10 elem
+          .long 0x0002
+          .long 0x0008
+          .long 0x0077
+          .long 0x0017
+          .long 0x0008
+          .long 0x0007
+          .long 0x0001
+          .long 0x0004
+          .long 0x0008 
+          
+Sort:   # 
+          
+
+    
+Main: 
+    pushl %ebp
+    rrmovl %esp, %ebp
+    irmovl $10, %ecx #length of array
+    pushl %ecx
+    irmovl array, %eax #eax now address of first elem
+    pushl %eax
+    call Sort:
+    
+    
+    
+    
+.pos 0x100
+Stack:
+    

@@ -1,0 +1,57 @@
+Init:
+    irmovl Stack, %ebp
+    irmovl Stack, %esp
+    call Main
+    halt
+
+    .align 4
+
+pointers: .long 0x0001  //need to have mem addresses to swap variables
+          .long 0x0002	//could have also set up in main but did it this way similar to lab
+
+#before eax 1
+#before ecx 2
+Swap:
+    pushl %ebp
+    rrmovl %esp , %ebp
+
+    mrmovl 8(%ebp), %ebx #get values on stack
+    mrmovl 12(%ebp), %edx
+    rrmovl %eax , %edx  //register to register moves
+    rrmovl %ecx , %ebx
+    rrmovl %ebx , %eax
+    rrmovl %edx , %ecx
+
+    popl %ebp //cleanup
+
+    ret
+
+
+
+Main:
+    pushl %ebp
+    rrmovl %esp , %ebp
+
+    irmovl pointers, %edx #get values ready second
+    mrmovl (%edx) , %eax
+    pushl %eax
+    irmovl $4 , %esi
+    addl   %esi , %edx
+    mrmovl (%edx), %ecx #get values ready //second
+    pushl %ecx
+
+    call Swap
+    popl %eax	//cleanup make sure eb and esp are where they should be 
+    popl %ecx
+    popl %ebp
+    ret
+
+
+.pos 0x100
+Stack:
+
+
+  #eax into ecx
+  #  xorl %eax , %ecx
+  #  xorl %ecx , %eax
+  #  xorl %eax , %ecx
